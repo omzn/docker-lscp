@@ -1,14 +1,119 @@
 ## Abstract
 This is a docker file to execute lscp (https://github.com/doofuslarge/lscp).
 
-## How to execute
-
-Please prepare pickle files in diff_code/; each of pickle files is
-the string of a target source code block.
+## How to build docker image
 
 ```
-$ bash run.sh
+docker build ./ -t lscp 
 ```
 
-Then, you can see the result in diff_code/lscp_*
+## How to run docker image
 
+Dockerイメージを作ったら，以下のようにして実行します．(ヘルプが表示されます)
+```
+docker run --rm -it -v .:/home/user_dir lscp lscp -h
+```
+
+shellのエイリアスで以下のように設定しておくと良いでしょう．
+```
+alias lscp='docker run --rm -it -v .:/home/user_dir lscp lscp'
+```
+以降は，コマンドから次のように実行するだけで良くなります．
+
+```
+lscp
+```
+## lscpの実行
+
+-hオプションでヘルプが表示されます．
+```
+$ lscp -h
+lscp [-hilo] [long options...]
+    --in_path STR (or -i)         Directory to read input files from
+    --out_path STR (or -o)        Directory to write output files to
+    --[no-]is_code                (default) Whether the input files are
+                                  source code files or not
+    --[no-]do_identifiers         (default) Whether to extract identifiers
+    --[no-]do_string_literals     Whether to extract string literals
+    --[no-]do_comments            Whether to process comments
+
+    --[no-]do_remove_digits       (default) Whether to remove digits
+    --[no-]do_lower_case          (default) Whether to convert to lower
+                                  case
+    --[no-]do_stemming            Whether to apply stemming
+    --[no-]do_tokenize            (default) Whether to tokenize words
+                                  (e.g., camelCase, under_scores)
+    --[no-]do_remove_punctuation  (default) Whether to remove punctuation
+    --[no-]do_remove_small_words  (default) Whether to remove small words
+    --[no-]do_stopwords_english   Whether to remove English stop words
+    --[no-]do_stopwords_keywords  Whether to remove programming language
+                                  keywords
+    --small_word_size INT         (default = 1) Size threshold for small
+                                  words
+
+    --log_level STR (or -l)       log level (debug, info, warning, error)
+
+    --help (or -h)                print usage and exit
+```
+必要なのは，-i と -o の指定です．
+
+* `--in_path` または `-i` で対象ファイルの入ったディレクトリを指定します．
+* `--out_path` または `-o` で，抽出された識別子の出力されるディレクトリを指定します．
+
+その他のオプションは必要に応じて設定してください．
+一般的にリポジトリマイニングで使うことになりそうなオプションがデフォルトになっています．
+
+### 使用例
+
+次のようなディレクトリで，lscpを実行します．
+```
+.
+├── in
+│   ├── exp_lscp.py
+│   └── lscpcmd.pl
+└── out
+```
+実行は次のようにします．
+```
+$ lscp -i in -o out
+```
+実行後に，outにファイルが生成されます．
+```
+.
+├── in
+│   ├── exp_lscp.py
+│   └── lscpcmd.pl
+└── out
+    ├── exp_lscp.py
+    └── lscpcmd.pl
+```
+outの中のファイルは全て抽出した識別子だけになっています．
+```
+$ cat out/lscpcmd.pl 
+usr
+bin
+perl
+use
+warnings
+use
+strict
+use
+lscp
+use
+getopt
+long
+descriptive
+```
+
+### 注意
+* `-in_path`の中のファイルは再帰的に取得しますが，`-out_path`にはディレクトリ構造が保持されない形で書き出されます．(下の例参照)
+```
+.
+├── in
+│   ├── exp_lscp.py
+│   └── sub
+│       └── lscpcmd.pl
+└── out
+    ├── exp_lscp.py
+    └── lscpcmd.pl
+```
