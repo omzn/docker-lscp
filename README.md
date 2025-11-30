@@ -1,13 +1,13 @@
-## Abstract
-This is a docker file to execute lscp (https://github.com/doofuslarge/lscp).
+# 汎用識別子抽出器 lscp : Docker化
 
-## How to build docker image
+汎用識別子抽出器 lscp (https://github.com/doofuslarge/lscp) をDockerからコマンドのように実行します．
 
+## Dockerイメージのビルド
+
+以下のコマンドでビルドします．
 ```
 docker build ./ -t lscp 
 ```
-
-## How to run docker image
 
 Dockerイメージを作ったら，以下のようにして実行します．(ヘルプが表示されます)
 ```
@@ -23,6 +23,7 @@ alias lscp='docker run --rm -it -v .:/home/user_dir lscp lscp'
 ```
 lscp
 ```
+
 ## lscpの実行
 
 -hオプションでヘルプが表示されます．
